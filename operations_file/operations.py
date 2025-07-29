@@ -32,8 +32,12 @@ def add_product(name, price, quantity, warehouse_id, product_id):
 
 def show_products():
     products = session.query(Product).all()
-    for product in products:
-        print(product)
+    if products:
+        for product in products:
+            print(product)
+    else:
+        print("No products found.")
+        
 
 def update_product_quantity(product_id, new_quantity):
     try:
@@ -55,17 +59,27 @@ def update_product_quantity(product_id, new_quantity):
             print("Product not found.")
     except Exception as e:
         session.rollback()
-        print(f"Error updating product: {e}")
+        print(f"Error updating product quantity: {e}")
 
 def delete_product(product_id):
     try:
         product = session.query(Product).filter(Product.product_id == product_id).first()
+
         if product:
+            # Delete inventory first
             inventory = session.query(Inventory).filter(Inventory.product_id == product_id).first()
             if inventory:
                 session.delete(inventory)
 
-            transaction = Transaction(product_id=product_id, warehouse_id=product.warehouse_id, transaction_type="delete", name=product.name, quantity=0, price=0)
+            # Log transaction before deleting the product
+            transaction = Transaction(
+                product_id=product.product_id,
+                warehouse_id=product.warehouse_id,
+                transaction_type="delete",
+                name=product.name,
+                quantity=0,
+                price=0
+            )
             session.add(transaction)
 
             session.delete(product)
@@ -75,7 +89,8 @@ def delete_product(product_id):
             print("Product not found.")
     except Exception as e:
         session.rollback()
-        print(f"Error deleting product: {e}")
+        print(f"Error deleting product : {e}")
+
 
 def show_inventory():
     inventory_items = session.query(Inventory).all()
