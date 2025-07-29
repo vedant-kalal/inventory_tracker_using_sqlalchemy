@@ -12,7 +12,7 @@ class Product(Base):
 
     warehouse = relationship("Warehouse", back_populates="products")
     inventory = relationship("Inventory", back_populates="product")
-    transactions = relationship("Transaction", back_populates="product")
+    transactions = relationship("Transaction", back_populates="product",cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"Product(id={self.product_id}, name={self.name}, price={self.price}, quantity={self.quantity}, warehouse_id={self.warehouse_id})"
